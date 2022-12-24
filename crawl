@@ -1,0 +1,25 @@
+#!/bin/bash
+
+[ -z $* ] && echo "$0 [domain_name].[TLD]"
+
+domain=$(echo $1 | sed -E "s!^http[s]?://!!g")
+url="https://$domain"
+user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+
+crawl() {
+
+        curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+             -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$user_agent" -sL "$1" | \
+             grep -Eo "href=[\"'][^#][^\"']+"  | sed -E "s@href=[\"']?@@g" | awk -F "\"|'" '{print $1}' | \
+             sed -E -e "/(http|tel)/!s|[/]?(.*)|$1\/\1|" -e "s& &%20&g"
+
+}
+
+cache=($(crawl $url))
+
+for obj in "${cache[@]}"; do
+
+        echo -e "\e[1;31m$obj\e[0m"
+        [[ "$obj" =~ .*$domain[/]?$ ]] && continue
+        [[ "$obj" =~ ^http.* ]] && crawl "$obj"
+done

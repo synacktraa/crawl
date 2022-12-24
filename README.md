@@ -11,7 +11,7 @@
 
 <h1 align="center">crawl<h1>
 
-![spider](https://i.imgur.com/WpS2TkD.jpg)
+![spider](https://imgur.com/Fx41LL5.jpg)
 <h3 align="center">
 A simple web crawler written in shell script, designed to efficiently discover endpoints and assets within a web application. 
 </h3>

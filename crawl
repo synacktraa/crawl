@@ -12,8 +12,8 @@ crawl() {
 
         curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
              -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$user_agent" -sL "$1" | \
-             grep -Eo "href=[\"'][^\"']+"  | sed -E "s@href=[\"'](#.*|/)?(.*)@\2@g" | \
-             sed -E -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
+             grep -Eo "href=[\"'][^\"']+"  | sed -E -e "s@href=[\"'](#.*|/)?(.*)@\2@g" \
+             -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }
 

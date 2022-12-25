@@ -8,14 +8,16 @@ user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 
 crawl() {
 
+        base_url="https://$(echo "$1" | cut -d '/' -f 3)"
+
         curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
              -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$user_agent" -sL "$1" | \
-             grep -Eo "href=[\"'][^#][^\"']+"  | sed -E "s@href=[\"']?@@g" | awk -F "\"|'" '{print $1}' | \
-             sed -E -e "/(http|tel)/!s|[/]?(.*)|$1\/\1|" -e "s& &%20&g"
+             grep -Eo "href=[\"'][^\"']+"  | sed -E "s@href=[\"'](#.*|/)?(.*)@\2@g" | \
+             sed -E -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }
 
-cache=($(crawl $url))
+cache=($(crawl "$url"))
 
 for obj in "${cache[@]}"; do
 

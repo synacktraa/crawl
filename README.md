@@ -1,4 +1,3 @@
-
 <p align=center>
 <br>
 <a href="http://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-darkred.svg"></a>
@@ -24,9 +23,31 @@ A simple web crawler written in shell script, designed to efficiently discover e
 
 ## Usage
 
-```sh
+```bash
 $ crawl
-crawl [domain_name].[TLD]
+```
+
+![ASCII spider](https://imgur.com/RQDEPBE.png)
+
+```bash
+$ crawl -h
+
+|Usage:
+|  crawl [-f] (href|script)
+|
+|Options:
+|  -h show help menu
+|  -f fetch a type of link. [href|script]
+|
+|Example:
+|  crawl -f script [domain].[TLD]
+|  crawl [domain].[TLD]/directory
+|  crawl -f href [domain].[TLD]/directory?key=value
+|
+|By default, crawl fetches both href and script links
+```
+
+```bash
 $ crawl github.com
 ```
 ![crawl](https://imgur.com/eKjKYil.png)
@@ -52,6 +73,5 @@ cd .. && rm -rf "./crawl"
 - curl
 - sed
 - grep
-- awk
-
+- cut
 

@@ -37,18 +37,18 @@ die () {
 }
 
 help_text () {
-	while read -r line; do
-		printf "%s\n" "$line"
-	done <<-EOF
+    while read -r line; do
+        printf "%s\n" "$line"
+    done <<-EOF
 	
-	Usage:
-	 ${0##*/} [-f] (href|script) 
+    Usage:
+      ${0##*/} [-f] (href|script) 
 
-	Options:
-	  -h show help menu
-	  -f fetch a type of link. [href|script]
+    Options:
+      -h show help menu
+      -f fetch a type of link. [href|script]
 	
-	By default, crawl fetches both href and script links
+      By default, crawl fetches both href and script links
 EOF
 }
 
@@ -56,25 +56,25 @@ fetch="(href|<script.*src)"
 group=3
 
 while getopts 'hf:' OPT; do
-	case $OPT in
-		f) 
-			group=2
-			case "$OPTARG" in
-				script)
-					fetch="<script.*src" ;;
-				href)
-					fetch="href" ;;
-				*)
-					help_text
-					exit 1
-					;;
-			esac
-			;;
-		h|*)
-			help_text
-			exit 0
-			;;
-	esac
+    case $OPT in
+        f) 
+            group=2
+            case "$OPTARG" in
+		script)
+		    fetch="<script.*src" ;;
+		href)
+		    fetch="href" ;;
+		*)
+		    help_text
+		    exit 1
+		    ;;
+	     esac
+	     ;;
+	 h|*)
+	 help_text
+	 exit 0
+	 ;;
+    esac
 done
 
 [ "$#" -eq 2 ] && die "No URL detected!"
@@ -85,12 +85,12 @@ user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 
 crawl() {
 
-	base_url="https://$(printf "%s" "$1" | cut -d '/' -f 3)"
+    base_url="https://$(printf "%s" "$1" | cut -d '/' -f 3)"
 	
-	curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
+    curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
          -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$user_agent" -sL "$1" | \
          grep -Eo "$fetch=[\"'][^\"']+"  | sed -E -e "s@$fetch=[\"'](#.*|/)?(.*)@\\$group@g" \
-	     -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
+	 -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }
 
@@ -99,7 +99,7 @@ cache=($(crawl "$url"))
 
 for obj in "${cache[@]}"; do
 
-        printf "\033[1;31m%s\033[0m" "$obj"
-        [[ "$obj" =~ .*$domain[/]?$ ]] && continue
-        [[ "$obj" =~ ^http.* ]] && crawl "$obj"
+    printf "\033[1;31m%s\033[0m" "$obj"
+    [[ "$obj" =~ .*$domain[/]?$ ]] && continue
+    [[ "$obj" =~ ^http.* ]] && crawl "$obj"
 done

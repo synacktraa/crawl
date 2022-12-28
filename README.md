@@ -27,7 +27,9 @@ A simple web crawler written in shell script, designed to efficiently discover e
 $ crawl
 ```
 
-![ASCII spider](https://imgur.com/RQDEPBE.png)
+<p align="center">
+ <img src="https://imgur.com/IBtC01a.png" alt="ASCII Spider's image"/>
+</p>
 
 ```bash
 $ crawl -h

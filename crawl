@@ -12,15 +12,15 @@ banner() {
     _   _______  \!         //
     _ /.------.\  \|      .'/  ______
     _//  ___  \ \ ||/|\  //  _/_----.\__
-    |/  /.-.\  \ \:|< >|// _/.'..\   '--'
-    '  //   !'. | !'.|.'/ /_/ /  \!
-    _ //     \ \_\!" ' ~\-'.-'    \!
-    _//       '-._| :H: |'-.__     \!
-    //           (!'==='!)'-._\     ||
-    ||                        \!    \|
-    ||      crawl@synacktra    \!    '
-    |/                          \!
-    '     Author: Harsh Verma    ||
+    _|/  /.-.\  \ \:|< >|// _/.'..\   '--'
+    _'  //   !'. | !'.|.'/ /_/ /  \!
+    _  //     \ \_\!" ' ~\-'.-'    \!
+    _ //       '-._| :H: |'-.__     \!
+    _//           (!'==='!)'-._\     ||
+    _||                        \!    \|
+    _||      crawl@synacktra    \!    '
+    _|/                          \!
+    _'     Author: Harsh Verma    ||
     _                            ||
     _                            \|
     _                             '
@@ -30,11 +30,6 @@ printf "see help menu: %s -h\n" "${0##*/}"
 
 [ -z "$*" ] && banner
 
-#display error message and exit
-die () {
-    printf "\033[31m%s\033[0m\n" "$*" >&2
-    exit 1
-}
 
 help_text () {
 
@@ -54,17 +49,16 @@ help_text () {
     |  crawl [domain].[TLD]/directory
     |  crawl -f href [domain].[TLD]/directory?key=value
     |
-    |By default, crawl fetches both href and script links
+    |By default, crawl fetches both href and script links.
+    |If no protocol specified, it uses HTTPs as default.
 EOF
 }
 
 fetch="(href|<script.*src)"
-group=3
 
 while getopts 'hf:' OPT; do
     case $OPT in
         f) 
-            group=2
             case "$OPTARG" in
 		script)
 		    fetch="<script.*src" ;;
@@ -77,26 +71,31 @@ while getopts 'hf:' OPT; do
 	     esac
 	     ;;
 	 h|*)
-	 help_text
-	 exit 0
-	 ;;
+	     help_text
+	     exit 0
+	     ;;
     esac
 done
 
-[ "$#" -eq 2 ] && die "No URL detected!"
+[ "$#" -eq 2 ] && printf "\033[31m%s\033[0m\n" "No URL detected!" >&2 && exit 1
 
-domain=$(printf "%s" "${@: -1}" | sed -E "s!^http[s]?://!!g")
-url="https://$domain"
-user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+url=$(printf "%s" "${@: -1}")
+[[ ! "$url" =~ http[s]?:// ]] && url="https://$url"
+
+agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
 crawl() {
 
-    base_url="https://$(printf "%s" "$1" | cut -d '/' -f 3)"
+    base_url=$(printf "%s" "$1" | awk -F "?|#" '{print $1}')
+    [[ $base_url =~ .*/ ]] && base_url=$(printf "%s" $base_url | sed 's#.$##g') 
 	
     curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
-         -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$user_agent" -sL "$1" | \
-         grep -Eo "$fetch=[\"'][^\"']+"  | sed -E -e "s@$fetch=[\"'](#.*|/)?(.*)@\\$group@g" \
-	 -e "s^[[:space:]]^%20^g" -e "/^(http|tel)/!s!.*!$base_url\/&!"
+         -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$agent" -sL "$1" | \
+         grep -Eo "$fetch=[\"'][^\"']+" | sed -E -e "s^[[:space:]]^%20^g" \
+	 -e "s@$fetch=[\"'](/|\./)?@@" \
+         -e "s!^/.*!https:/&!" \
+	 -e "s!^\.\./(.*)!$(printf "%s" $base_url | grep -Eo '.*/')\1!" \
+	 -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }
 
@@ -106,6 +105,7 @@ cache=($(crawl "$url"))
 for obj in "${cache[@]}"; do
 
     printf "\033[1;31m%s\033[0m\n" "$obj"
-    [[ "$obj" =~ .*$domain[/]?$ ]] && continue
+    [[ "$obj" =~ $url[/]?$ ]] && continue
     [[ "$obj" =~ ^http.* ]] && crawl "$obj"
 done
+

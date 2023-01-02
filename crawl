@@ -90,19 +90,21 @@ agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 crawl() {
 
     base_url=$(printf "%s" "$1" | awk -F "#|?" '{print $1}' | sed -E 's#(.*)/$#\1#')
+    site=$(printf "%s" "$1" | grep -Eo "https?://[^/]+")
 
     curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
          -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$agent" -sL "$1" | \
          grep -Eo "$attr=[\"'][^\"']+" | sed -Ee "s^[[:space:]]^%20^g" \
-	 -e "s@$attr=[\"'](/|\./)?@@" \
-         -e "s!^/.*!https:/&!" \
-	 -e 's#^\.\./.*#cnt=$(($(printf "%s" '"$base_url"'|sed -E "s_https?://__"|grep -Eo "(/[^/]*)"|wc -l) - \
+         -e "s@$attr=[\"'](\./)?@@" \
+         -e "s@^//.+@https:&@" \
+         -e "s@^/.*@$site&@" \
+         -e 's#^\.\./.*#cnt=$(($(printf "%s" '"$base_url"'|sed -E "s_https?://__"|grep -Eo "(/[^/]*)"|wc -l) - \
                                $(printf "%s" "&"| grep -Eo "\.\./"|wc -l)));\
                         cnt=$(printf "%s" "$cnt"| sed -E "s!^-.+!0!");\
                         dir=$(printf "%s" "&"|sed -E "s@[.]{2}/@@g");\
                         URL=$(printf "%s" '"$base_url"'|grep -Eo "https?://[^/]+(/[^/]*){$cnt}");\
                         printf "%s/%s" "$URL" "$dir"#e'\
-	 -e "/^(http|tel)/!s!.*!$base_url\/&!"
+         -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }
 

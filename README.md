@@ -8,72 +8,81 @@
 <br>
 </p>
 
+<p align="center">
+<a><img title="Made in INDIA" src="https://img.shields.io/badge/MADE%20IN-INDIA-SCRIPT?colorA=%23ff8100&colorB=%23017e40&colorC=%23ff0000&style=for-the-badge"></a>
+</p>
+
 <h1 align="center">crawl<h1>
 
 <p align="center">
-  <img src="https://imgur.com/kN5LnMQ.jpg" alt="Spider's image"/>
+<img src="https://imgur.com/kN5LnMQ.jpg" alt="Spider's image"/>
 </p>
 
 <h3 align="center">
-A simple web crawler written in shell script, designed to efficiently discover endpoints and assets within a web application. 
+A simple web crawler written in shell script, designed to efficiently discover endpoints and assets within a web application.
 </h3>
-<br>
 
-> This web crawler has a crawling depth of 2, but I am actively working on improving it in the near future. Stay tuned for updates on the increased depth capabilities of this tool.
-
-## Usage
+##  Usage
 
 ```bash
 $ crawl
 ```
 
 <p align="center">
- <img src="https://imgur.com/IBtC01a.png" alt="ASCII Spider's image"/>
+<img src="https://imgur.com/tsLsR6Z.png" alt="ASCII Spider's image"/>
 </p>
 
-```bash
+```
 $ crawl -h
-
 |Usage:
-|  crawl [-f] (href|script)
+|  ${0##*/} [-f] [href|script|form] 
 |
 |Options:
 |  -h show help menu
-|  -f fetch a type of link. [href|script]
+|  -f attr a type of link. [href|script|form]
 |
 |Example:
 |  crawl -f script [domain].[TLD]
 |  crawl [domain].[TLD]/directory
 |  crawl -f href [domain].[TLD]/directory?key=value
 |
-|By default, crawl fetches both href and script links
+|Fetches all href, script and form links, if no flags are specified.
+|Uses HTTPs as default protocol, if no protocol is specified.
+
 ```
 
 ```bash
 $ crawl github.com
 ```
+
 ![crawl](https://imgur.com/eKjKYil.png)
 
 *This web crawler is getting some exciting updates soon! In addition to its current capabilities, we will be adding a timeout feature and the ability to send requests through a proxy server.*
 
-## Tool Chain
+##  Tool Chain
 
-Get all subdomains of owasp, crawl the ones that are alive.
+Get all subdomains of owasp.org and crawl the ones that are alive.
+
 ```bash
 subfinder -d owasp.org | httpx | crawl
 ```
+## Features
+-   Fetches all href, script and form links.
+-   Highlights the Depth-1 URLs and indicates which Depth-2 URLs are included under each Depth-1 URL.
+-   Uses HTTPs as default protocol, if no protocol is specified.
+-   Can be linked with other tool(s)/command(s) using pipes to create a tool chain.
+##  Installation
 
-## Installation
-
-```sh
+```bash
 git clone https://github.com/synacktraa/crawl.git && cd ./crawl
 sudo mv ./crawl /usr/local/bin
 cd .. && rm -rf "./crawl"
 ```
-## Dependencies
+
+##  Dependencies
 
 - curl
 - sed
 - grep
-- cut
-
+- awk
+- wc

@@ -9,9 +9,9 @@ banner() {
     _    ____                      ;
     _   /---.'.__             ____//
     _        '--.\           /.---'
-    _   _______  \!         //
-    _ /.------.\  \|      .'/  ______
-    _//  ___  \ \ ||/|\  //  _/_----.\__
+    _  ________  \!         //
+    _ /.------.\  \|      .//   ______
+    _//   ___  \ \ ! /|\  //  _/_----.\__
     _|/  /.-.\  \ \:|< >|// _/.'..\   '--'
     _'  //   !'. | !'.|.'/ /_/ /  \!
     _  //     \ \_\!" ' ~\-'.-'    \!
@@ -20,12 +20,12 @@ banner() {
     _||                        \!    \|
     _||      crawl@synacktra    \!    '
     _|/                          \!
-    _'     Author: Harsh Verma    ||
+    _'                           |!
     _                            ||
     _                            \|
     _                             '
+    _Coded By Harsh Verma with Love <3 ❤
 EOF
-printf "see help menu: %s -h\n" "${0##*/}"
 }
 
 [ -z "$*" ] && banner
@@ -36,34 +36,36 @@ help_text () {
     while read -r line; do
         printf "%s\n" "$line"
     done <<-EOF
-	
+
     |Usage:
-    |  ${0##*/} [-f] (href|script) 
+    |  ${0##*/} [-f] [href|script|form] 
     |
     |Options:
     |  -h show help menu
-    |  -f fetch a type of link. [href|script]
+    |  -f attr a type of link. [href|script|form]
     |
     |Example:
     |  crawl -f script [domain].[TLD]
     |  crawl [domain].[TLD]/directory
     |  crawl -f href [domain].[TLD]/directory?key=value
     |
-    |By default, crawl fetches both href and script links.
-    |If no protocol specified, it uses HTTPs as default.
+    |Fetches all href, script and form links, if no flags are specified.
+    |Uses HTTPs as default protocol, if no protocol is specified.
 EOF
 }
 
-fetch="(href|<script.*src)"
+attr="(href|<script.*src|form.*action)"
 
 while getopts 'hf:' OPT; do
     case $OPT in
         f) 
             case "$OPTARG" in
 		script)
-		    fetch="<script.*src" ;;
+		    attr="<script.*src" ;;
 		href)
-		    fetch="href" ;;
+		    attr="href" ;;
+		form)
+		    attr="form.*action" ;;
 		*)
 		    help_text
 		    exit 1
@@ -71,6 +73,7 @@ while getopts 'hf:' OPT; do
 	     esac
 	     ;;
 	 h|*)
+	     banner
 	     help_text
 	     exit 0
 	     ;;
@@ -80,21 +83,25 @@ done
 [ "$#" -eq 2 ] && printf "\033[31m%s\033[0m\n" "No URL detected!" >&2 && exit 1
 
 url=$(printf "%s" "${@: -1}")
-[[ ! "$url" =~ http[s]?:// ]] && url="https://$url"
+[[ ! "$url" =~ https?://.* ]] && url="https://$url"
 
 agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
 crawl() {
 
-    base_url=$(printf "%s" "$1" | awk -F "?|#" '{print $1}')
-    [[ $base_url =~ .*/ ]] && base_url=$(printf "%s" $base_url | sed 's#.$##g') 
-	
+    base_url=$(printf "%s" "$1" | awk -F "#|?" '{print $1}' | sed -E 's#(.*)/$#\1#')
+
     curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
          -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$agent" -sL "$1" | \
-         grep -Eo "$fetch=[\"'][^\"']+" | sed -E -e "s^[[:space:]]^%20^g" \
-	 -e "s@$fetch=[\"'](/|\./)?@@" \
+         grep -Eo "$attr=[\"'][^\"']+" | sed -Ee "s^[[:space:]]^%20^g" \
+	 -e "s@$attr=[\"'](/|\./)?@@" \
          -e "s!^/.*!https:/&!" \
-	 -e "s!^\.\./(.*)!$(printf "%s" $base_url | grep -Eo '.*/')\1!" \
+	 -e 's#^\.\./.*#cnt=$(($(printf "%s" '"$base_url"'|sed -E "s_https?://__"|grep -Eo "(/[^/]*)"|wc -l) - \
+                               $(printf "%s" "&"| grep -Eo "\.\./"|wc -l)));\
+                        cnt=$(printf "%s" "$cnt"| sed -E "s!^-.+!0!");\
+                        dir=$(printf "%s" "&"|sed -E "s@[.]{2}/@@g");\
+                        URL=$(printf "%s" '"$base_url"'|grep -Eo "https?://[^/]+(/[^/]*){$cnt}");\
+                        printf "%s/%s" "$URL" "$dir"#e'\
 	 -e "/^(http|tel)/!s!.*!$base_url\/&!"
 
 }

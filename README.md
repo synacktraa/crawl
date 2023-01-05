@@ -66,11 +66,12 @@ Get all subdomains of owasp.org and crawl the ones that are alive.
 ```bash
 subfinder -d owasp.org | httpx | crawl
 ```
+  
 ## Features
 -   Fetches all href, script and form links.
--   Highlights the Depth-1 URLs and indicates which Depth-2 URLs are included under each Depth-1 URL.
 -   Uses HTTPs as default protocol, if no protocol is specified.
 -   Can be linked with other tool(s)/command(s) using pipes to create a tool chain.
+  
 ##  Installation
 
 ```bash

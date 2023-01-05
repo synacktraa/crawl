@@ -116,6 +116,6 @@ cache=( $(crawl "$url") )
 for obj in ${cache[@]}
 do
     [[ "$url" =~ $obj/?$ ]] && continue
-    printf "%s\n%s\n" "$obj" "$(crawl ${obj})"&
+    printf "\033[1;31m%s\033[0m\n%s\n" "$obj" "$(crawl ${obj})" | sort &
 
-done | sort | uniq
+done | uniq

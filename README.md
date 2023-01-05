@@ -52,10 +52,10 @@ $ crawl -h
 ```
 
 ```bash
-$ crawl github.com
+$ echo google.com | crawl
 ```
 
-![crawl](https://imgur.com/eKjKYil.png)
+[![asciicast](https://asciinema.org/a/1nQQGtpE6q8qweVS2q9dfpAaa.svg)](https://asciinema.org/a/1nQQGtpE6q8qweVS2q9dfpAaa)
 
 *This web crawler is getting some exciting updates soon! In addition to its current capabilities, we will be adding a timeout feature and the ability to send requests through a proxy server.*
 

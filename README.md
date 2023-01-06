@@ -72,6 +72,7 @@ subfinder -d owasp.org | httpx | crawl
 -   Highlights the Depth-1 URLs and indicates which Depth-2 URLs are included under each Depth-1 URL.
 -   Uses HTTPs as default protocol, if no protocol is specified.
 -   Can be linked with other tool(s)/command(s) using pipes to create a tool chain.
+-   Output will be color-less if it's redirected to a file or piped to a another command.
   
 ##  Installation
 
@@ -88,3 +89,5 @@ cd .. && rm -rf "./crawl"
 - grep
 - awk
 - wc
+- sort
+- uniq

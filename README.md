@@ -35,7 +35,7 @@ $ crawl
 ```
 $ crawl -h
 |Usage:
-|  ${0##*/} [-f] [href|script|form] 
+|  crawl [-f] [href|script|form] 
 |
 |Options:
 |  -h show help menu

@@ -4,7 +4,7 @@ banner() {
 
  
     while read -r line; do
-    	printf "\e[1;31m\e[%s\e[0m\n" "$line"
+        printf "\e[1;31m\e[%s\e[0m\n" "$line"
     done <<-EOF
     _    ____                      ;
     _   /---.'.__             ____//
@@ -39,11 +39,12 @@ help_text () {
     |
     |Options:
     |  -h show help menu
+    |  -d number of depth to scrape.
     |  -f attribute a type of link. [href|script|form]
     |
     |Example:
     |  crawl -f script [domain].[TLD]
-    |  crawl [domain].[TLD]/directory
+    |  crawl -d 1 [domain].[TLD]/directory
     |  crawl -f href [domain].[TLD]/directory?key=value
     |
     |Fetches all href, script and form links, if no flags are specified.
@@ -53,27 +54,39 @@ EOF
 
 attribute="(\bhref|<script.*\bsrc|<form.*\baction)"
 
-while getopts 'hf:' OPT; do
+while getopts 'hf:d:' OPT; do
     case $OPT in
         f) 
             case "$OPTARG" in
-		script)
-		    attribute="<script.*\bsrc" ;;
-		href)
-		    attribute="\bhref" ;;
-		form)
-		    attribute="form.*\baction" ;;
-		*)
-		    help_text
-		    exit 1
-		    ;;
-	     esac
-	     ;;
-	 h|*)
-	     banner
-	     help_text
-	     exit 0
-	     ;;
+                script)
+                    attribute="<script.*\bsrc" ;;
+                href)
+                    attribute="\bhref" ;;
+                form)
+                    attribute="form.*\baction" ;;
+                *)
+                    help_text
+                    exit 1
+                    ;;
+             esac
+             ;;
+         d)
+             case "$OPTARG" in
+                 1|2)
+                     depth=$OPTARG
+                     ;;
+                 *)
+                     banner
+                     printf "%s\n" "crawl can only scrape till Depth-2!"
+                     exit 1
+                     ;;
+             esac
+             ;;
+         h|*)
+             banner
+             help_text
+             exit 0
+             ;;
     esac
 done
 
@@ -85,13 +98,13 @@ crawl() {
     site=$(printf "%s" "$base_url" | grep -Eo "^https?://[^/]+")
 
     curl -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' \
-	 -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$agent" -sL "$1" | \
+         -H 'Accept-Language: en-GB,en-US;q=0.8,en;q=0.6' -A "$agent" -sL "$1" | \
          grep -Eo "$attribute=[\"'][^\"']+" | sed -E -e "s@$attribute=[\"'](\./|javascript:.+)?@@" \
-	 -e "s@[[:space:]]@%20@g" \
+         -e "s@[[:space:]]@%20@g" \
          -e "s@^//.+@https:&@" \
          -e "s@^/.*@$site&@" \
          -e 's@^\.\./.*@cnt=$(($(printf "%s" '"$base_url"'|sed -E "s#https?://##"|\
-	                grep -Eo "(/[^/]*)"|wc -l) - $(printf "%s" "&"| grep -Eo "\.\./"|wc -l)));\
+                        grep -Eo "(/[^/]*)"|wc -l) - $(printf "%s" "&"| grep -Eo "\.\./"|wc -l)));\
                         cnt=$(printf "%s" "$cnt"| sed -E "s#^-[0-9]+#0#");\
                         dir=$(printf "%s" "&"|sed -E "s#[.]{2}/##g");\
                         URL=$(printf "%s" '"$base_url"'|grep -Eo "https?://[^/]+(/[^/]*){$cnt}");\
@@ -114,6 +127,7 @@ fi
 # OUTPUT
 [[ -t 1 ]] && format="\033[1;31m%s\033[0m" || format="%s"
 
+[ "$depth" -eq 1 ] && crawl "$url" && exit 0
 
 cache=( $(crawl "$url") )
 for obj in ${cache[@]}

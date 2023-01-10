@@ -57,8 +57,6 @@ $ echo google.com | crawl
 
 [![asciicast](https://imgur.com/XmhgWm5.png)](https://asciinema.org/a/1nQQGtpE6q8qweVS2q9dfpAaa)
 
-*This web crawler is getting some exciting updates soon! In addition to its current capabilities, we will be adding a timeout feature and the ability to send requests through a proxy server.*
-
 ##  Tool Chain
 
 Get all subdomains of owasp.org and crawl the ones that are alive.
@@ -71,6 +69,7 @@ subfinder -d owasp.org | httpx | crawl
 -   Fetches all href, script and form links.
 -   Highlights the Depth-1 URLs and indicates which Depth-2 URLs are included under each Depth-1 URL.
 -   Uses HTTPs as default protocol, if no protocol is specified.
+-   Depth is set to 1 by default, if depth is not specified.
 -   Can be linked with other tool(s)/command(s) using pipes to create a tool chain.
 -   Output will be color-less if it's redirected to a file or piped to a another command.
   

@@ -53,6 +53,7 @@ EOF
 }
 
 attribute="(\bhref|<script.*\bsrc|<form.*\baction)"
+depth=1
 
 while getopts 'hf:d:' OPT; do
     case $OPT in

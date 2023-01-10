@@ -39,16 +39,16 @@ $ crawl -h
 |
 |Options:
 |  -h show help menu
-|  -f attr a type of link. [href|script|form]
+|  -d number of depth to scrape.
+|  -f attribute a type of link. [href|script|form]
 |
 |Example:
 |  crawl -f script [domain].[TLD]
-|  crawl [domain].[TLD]/directory
+|  crawl -d 1 [domain].[TLD]/directory
 |  crawl -f href [domain].[TLD]/directory?key=value
 |
 |Fetches all href, script and form links, if no flags are specified.
-|Uses HTTPs as default protocol, if no protocol is specified.
-
+|Uses HTTPs as default protocol, if no protocol is specified.                                                               
 ```
 
 ```bash
